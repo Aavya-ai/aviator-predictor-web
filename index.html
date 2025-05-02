@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Aviator Predictor</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <style>
+    body { background: #121212; color: white; font-family: sans-serif; text-align: center; }
+    .multiplier { font-size: 60px; margin-top: 20px; }
+    .input-box { margin: 10px auto; }
+    input { padding: 5px; font-size: 16px; width: 60px; }
+  </style>
+</head>
+<body>
+  <h1>AviatorX AI Predictor</h1>
+  <div class="input-box" id="inputs"></div>
+  <button onclick="predict()">Predict Next Multiplier</button>
+  <div class="multiplier" id="output">--</div>
+
+  <script>
+    let model;
+    const inputBox = document.getElementById("inputs");
+    for (let i = 0; i < 10; i++) {
+      inputBox.innerHTML += `<input type="number" id="input${i}" step="0.01" required>`;
+    }
+
+    async function loadModel() {
+      model = await tf.loadLayersModel('web_model/model.json');
+      console.log("Model loaded.");
+    }
+
+    async function predict() {
+      let inputData = [];
+      for (let i = 0; i < 10; i++) {
+        inputData.push(parseFloat(document.getElementById(`input${i}`).value));
+      }
+
+      const tensor = tf.tensor2d([inputData]);
+      const prediction = model.predict(tensor);
+      const value = await prediction.data();
+      document.getElementById("output").innerText = `Next Multiplier: ${value[0].toFixed(2)}x`;
+    }
+
+    loadModel();
+  </script>
+</body>
+</html>
